@@ -55,10 +55,10 @@ class WeatherApiServices {
         host: kApiHost,
         path: '/data/2.5/weather',
         queryParameters: {
-          'lat': directGeocoding.lat,
-          'lon': directGeocoding.lon,
+          'lat': '${directGeocoding.lat}',
+          'lon': '${directGeocoding.lon}',
           'units': kUnit,
-          'appID': dotenv.env['APPAID'],
+          'appid': dotenv.env['APPID']
         });
 
     try {
