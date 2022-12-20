@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:weather_app/screens/home/home_screen.dart';
-import 'package:weather_app/screens/search/search_screen.dart';
-import 'package:weather_app/screens/settings/settings_screen.dart';
+import 'cubits/weather/weather_cubit.dart';
+import 'repositories/weather_repository.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/search/search_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'services/weather_api_services.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   await dotenv.load(fileName: '.env');
   runApp(
-    const WeatherApp(),
+    RepositoryProvider(
+      create: (context) => WeatherRepository(
+        weatherApiServices: WeatherApiServices(
+          httpClient: http.Client(),
+        ),
+      ),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => WeatherCubit(
+              weatherRepository: context.read<WeatherRepository>(),
+            ),
+          ),
+        ],
+        child: const WeatherApp(),
+      ),
+    ),
   );
 }
 
