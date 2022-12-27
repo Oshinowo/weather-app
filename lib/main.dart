@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:weather_app/cubits/temp_settings/temp_settings_cubit.dart';
 import 'cubits/weather/weather_cubit.dart';
 import 'repositories/weather_repository.dart';
 import 'screens/home/home_screen.dart';
@@ -24,6 +25,9 @@ void main() async {
             create: (context) => WeatherCubit(
               weatherRepository: context.read<WeatherRepository>(),
             ),
+          ),
+          BlocProvider(
+            create: (context) => TempSettingsCubit(),
           ),
         ],
         child: const WeatherApp(),
