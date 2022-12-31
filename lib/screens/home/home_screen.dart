@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/constants/constants.dart';
-import 'package:weather_app/cubits/temp_settings/temp_settings_cubit.dart';
-import 'package:weather_app/cubits/weather/weather_cubit.dart';
 import 'package:weather_app/screens/search/search_screen.dart';
 import 'package:weather_app/screens/settings/settings_screen.dart';
 import 'package:weather_app/utils/error_dialog.dart';
+
+import '../../blocs/blocs.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,7 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // print('city: $_city');
               if (!mounted) return;
               if (_city != null) {
-                context.read<WeatherCubit>().fetchWeather(_city!);
+                context
+                    .read<WeatherBloc>()
+                    .add(FetchWeatherEvent(cityName: _city!));
               }
             },
             icon: const Icon(
@@ -55,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _showWeather() {
-    return BlocConsumer<WeatherCubit, WeatherState>(
+    return BlocConsumer<WeatherBloc, WeatherState>(
       listener: (context, state) {
         if (state.weatherStatus == WeatherStatus.error) {
           errorDialog(context, state.error.errMsg);
@@ -180,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String showTemperature(double temp) {
-    final tempUnit = context.watch<TempSettingsCubit>().state.tempUnit;
+    final tempUnit = context.watch<TempSettingsBloc>().state.tempUnit;
     if (tempUnit == TempUnit.farenheit) {
       return '${((temp * 9 / 5) + 32).toStringAsFixed(2)}℉';
     }
