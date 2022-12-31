@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:weather_app/cubits/temp_settings/temp_settings_cubit.dart';
-import 'package:weather_app/cubits/theme/theme_cubit.dart';
-import 'cubits/weather/weather_cubit.dart';
+import 'blocs/blocs.dart';
 import 'repositories/weather_repository.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/search/search_screen.dart';
@@ -23,16 +21,16 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => WeatherCubit(
+            create: (context) => WeatherBloc(
               weatherRepository: context.read<WeatherRepository>(),
             ),
           ),
           BlocProvider(
-            create: (context) => TempSettingsCubit(),
+            create: (context) => TempSettingsBloc(),
           ),
           BlocProvider(
-            create: (context) => ThemeCubit(
-              weatherCubit: context.read<WeatherCubit>(),
+            create: (context) => ThemeBloc(
+              weatherBloc: context.read<WeatherBloc>(),
             ),
           )
         ],
@@ -47,7 +45,7 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeState>(
+    return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
