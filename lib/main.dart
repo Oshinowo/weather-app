@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:weather_app/cubits/temp_settings/temp_settings_cubit.dart';
-import 'package:weather_app/cubits/theme/theme_cubit.dart';
-import 'cubits/weather/weather_cubit.dart';
+import 'blocs/blocs.dart';
 import 'repositories/weather_repository.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/search/search_screen.dart';
@@ -23,17 +21,15 @@ void main() async {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => WeatherCubit(
+            create: (context) => WeatherBloc(
               weatherRepository: context.read<WeatherRepository>(),
             ),
           ),
           BlocProvider(
-            create: (context) => TempSettingsCubit(),
+            create: (context) => TempSettingsBloc(),
           ),
           BlocProvider(
-            create: (context) => ThemeCubit(
-              weatherCubit: context.read<WeatherCubit>(),
-            ),
+            create: (context) => ThemeBloc(),
           )
         ],
         child: const WeatherApp(),
@@ -47,25 +43,30 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, ThemeState>(
-      builder: (context, state) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: state.appTheme == AppTheme.light
-              ? ThemeData.light().copyWith(
-                  visualDensity: VisualDensity.adaptivePlatformDensity,
-                )
-              : ThemeData.dark().copyWith(
-                  visualDensity: VisualDensity.adaptivePlatformDensity,
-                ),
-          initialRoute: HomeScreen.id,
-          routes: {
-            HomeScreen.id: (context) => const HomeScreen(),
-            SearchScreen.id: (context) => const SearchScreen(),
-            SettingsScreen.id: (context) => const SettingsScreen(),
-          },
-        );
+    return BlocListener<WeatherBloc, WeatherState>(
+      listener: (context, state) {
+        context.read<ThemeBloc>().setTheme(state.weather.temp);
       },
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: state.appTheme == AppTheme.light
+                ? ThemeData.light().copyWith(
+                    visualDensity: VisualDensity.adaptivePlatformDensity,
+                  )
+                : ThemeData.dark().copyWith(
+                    visualDensity: VisualDensity.adaptivePlatformDensity,
+                  ),
+            initialRoute: HomeScreen.id,
+            routes: {
+              HomeScreen.id: (context) => const HomeScreen(),
+              SearchScreen.id: (context) => const SearchScreen(),
+              SettingsScreen.id: (context) => const SettingsScreen(),
+            },
+          );
+        },
+      ),
     );
   }
 }
