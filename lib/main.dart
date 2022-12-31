@@ -29,9 +29,7 @@ void main() async {
             create: (context) => TempSettingsBloc(),
           ),
           BlocProvider(
-            create: (context) => ThemeBloc(
-              weatherBloc: context.read<WeatherBloc>(),
-            ),
+            create: (context) => ThemeBloc(),
           )
         ],
         child: const WeatherApp(),
@@ -45,25 +43,30 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(
-      builder: (context, state) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: state.appTheme == AppTheme.light
-              ? ThemeData.light().copyWith(
-                  visualDensity: VisualDensity.adaptivePlatformDensity,
-                )
-              : ThemeData.dark().copyWith(
-                  visualDensity: VisualDensity.adaptivePlatformDensity,
-                ),
-          initialRoute: HomeScreen.id,
-          routes: {
-            HomeScreen.id: (context) => const HomeScreen(),
-            SearchScreen.id: (context) => const SearchScreen(),
-            SettingsScreen.id: (context) => const SettingsScreen(),
-          },
-        );
+    return BlocListener<WeatherBloc, WeatherState>(
+      listener: (context, state) {
+        context.read<ThemeBloc>().setTheme(state.weather.temp);
       },
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: state.appTheme == AppTheme.light
+                ? ThemeData.light().copyWith(
+                    visualDensity: VisualDensity.adaptivePlatformDensity,
+                  )
+                : ThemeData.dark().copyWith(
+                    visualDensity: VisualDensity.adaptivePlatformDensity,
+                  ),
+            initialRoute: HomeScreen.id,
+            routes: {
+              HomeScreen.id: (context) => const HomeScreen(),
+              SearchScreen.id: (context) => const SearchScreen(),
+              SettingsScreen.id: (context) => const SettingsScreen(),
+            },
+          );
+        },
+      ),
     );
   }
 }
